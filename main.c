@@ -573,7 +573,7 @@ int main(int argc, char** argv) {
       // timeout occurred!
       // it's been 5 seconds since last time
       static uint16_t lapCtr = 0;
-      timeRef1 = millisx(); // re-init the timeRef0
+      timeRef1 = millisx(); // re-init the timeRef1
       lapCtr++;  // increment the lap counter
       printf("Hello World, %u\n", lapCtr); // print message to console
     }
@@ -583,7 +583,7 @@ int main(int argc, char** argv) {
     static uint32_t timeRef2 = 0;  // declare static variable for this timer    
     if (millisx() - timeRef2 > 100) {
       // timeout occurred!
-      timeRef2 = millisx(); // re-init the timeRef1
+      timeRef2 = millisx(); // re-init the timeRef2
       // check for semaphore from TCB0 interrupt that occurs every millisecond.
       // because switches have mechanical bounce, there will probably be several
       // interrupts over the course of 10 ms for every switch closure.  However,
@@ -600,7 +600,7 @@ int main(int argc, char** argv) {
     static uint32_t timeRef3 = 0;  // declare static variable for this timer
     if (millisx() - timeRef3 > 750) {
       // timeout occurred!
-      timeRef3 = millisx(); // re-init the timeRef2    
+      timeRef3 = millisx(); // re-init the timeRef3    
       // check the status of the switch at PC7 (ignoring the interrupt routine) and
       // place the switch status in the variable as either 1 or 0.  "PORTC.IN & PIN7_bm"
       // results in either a zero or some non-zero value.  applying the ! (not) operator
@@ -618,7 +618,7 @@ int main(int argc, char** argv) {
     static uint32_t timeRef4 = 0;  // declare static variable for this timer
     if (millisx() - timeRef4 > 623) {
       // timeout occurred!
-      timeRef4 = millisx(); // re-init the timeRef3   
+      timeRef4 = millisx(); // re-init the timeRef4   
       printf("ADC= %4d\n", ADC0.RES);
     }
   }
