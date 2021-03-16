@@ -574,7 +574,6 @@ int main(int argc, char** argv) {
       // it's been 5 seconds since last time
       static uint16_t lapCtr = 0;
       timeRef1 = millisx(); // re-init the timeRef0
-      led0Toggle(); // toggle the LED
       lapCtr++;  // increment the lap counter
       printf("Hello World, %u\n", lapCtr); // print message to console
     }
