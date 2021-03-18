@@ -1,4 +1,4 @@
-```py
+```c
  This is a test program for the Electrodragon AVR128DB64 development board.
  https://www.electrodragon.com/product/avr128db64-mini-develpment-board-avr128/
 
@@ -28,12 +28,12 @@
  with a +1VDC offset (to keep the input signal within GND and VREF) that sampled
  sine wave can be clearly be seen with an oscilloscope at the output of DAC0.
 
- A switch on PC6 (active low) is configured to cause an interrupt and
+ A switch on PC7 (active low) is configured to cause an interrupt and
  set a global semaphore flag for use by a polled function.  
 
  Every 5 seconds a Hello World message is printed to the console.
 
- Every 500 ms an LED (active high) on PC7 is toggled.
+ Every 500 ms an LED (active high) on PC6 is toggled.
 
  Every 100 ms a polled function checks the status of the switch interrupt
  semaphore and prints a message to the console when found set.
