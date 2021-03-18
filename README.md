@@ -1,4 +1,4 @@
-```c
+~~~text
 This is a test program for the Electrodragon AVR128DB64 development board.
 https://www.electrodragon.com/product/avr128db64-mini-develpment-board-avr128/
 
@@ -43,6 +43,6 @@ Every 750 ms the status of the PC7 switch is checked and if found active
 
 Every 623 ms the last conversion value of the ADC is printed to the console.
 
-```
+~~~
 
 
