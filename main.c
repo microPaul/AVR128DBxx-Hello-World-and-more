@@ -7,50 +7,49 @@
  */
 
 ///////////////////////////////////////////////////
-// This is a test program for the Electrodragon AVR128DB64 development board.
-// https://www.electrodragon.com/product/avr128db64-mini-develpment-board-avr128/
+//  This is a test program for the Electrodragon AVR128DB64 development board.
+//  https://www.electrodragon.com/product/avr128db64-mini-develpment-board-avr128/
 //
-// Developed on MPLAB X IDE using the XC8 compiler and debugged with SNAP.
+//  Developed on MPLAB X IDE using the XC8 compiler and debugged with SNAP.
 //
-// This program can easily be modified to run on most any other development
-// board that makes use of Microchip's AVR-DB MCUs, including the AVR128DB48 Curiosity
-// Nano.
+//  This program can easily be modified to run on most any other development
+//  board that makes use of Microchip's AVR-DB MCUs, including the AVR128DB48 Curiosity
+//  Nano.
 //
-// This software provides functionality that includes:
+//  This software provides functionality that includes:
 //
-// A printf() capability to print formatted messages to the console.
+//  A printf() capability to print formatted messages to the console.
 //
-// Receive UART characters are accumulated via an interrupt routine and placed on
-// a FIFO for use by application code.
+//  Receive UART characters are accumulated via an interrupt routine and placed on
+//  a FIFO for use by application code.
 //
-// TCB0 is used to cause an interrupt every 1 ms, to create an
-// Arduino-like millisx() function, that returns a 32 bit value that represents
-// the number of milliseconds since the last system reset.
+//  TCB0 is used to cause an interrupt every 1 ms, to create an
+//  Arduino-like millisx() function, that returns a 32 bit value that represents
+//  the number of milliseconds since the last system reset.
 //
-// TCB1 is used to create an event output at a rate of 16,0000 times a second.
-// That event causes ADC0 to start a conversion.  At the end of the conversion ADC0
-// will cause an interrupt.  That interrupt will read the value of ADC0, reduce
-// the resolution of the value from 12 bits to 10 bits,  change the justification of
-// the datum to be compatible with DAC0 and then write the value read by the ADC0 to
-// DAC0.  At 16,000 times a second when a 1 kHz sine wave of 1Vpp is applied to ADC0
-// with a +1VDC offset (to keep the input signal within GND and VREF) that sampled
-// sine wave can be clearly be seen with an oscilloscope at the output of DAC0.
+//  TCB1 is used to create an event output at a rate of 16,0000 times a second.
+//  That event causes ADC0 to start a conversion.  At the end of the conversion ADC0
+//  will cause an interrupt.  That interrupt will read the value of ADC0, reduce
+//  the resolution of the value from 12 bits to 10 bits,  change the justification of
+//  the datum to be compatible with DAC0 and then write the value read by the ADC0 to
+//  DAC0.  At 16,000 times a second when a 1 kHz sine wave of 1Vpp is applied to ADC0
+//  with a +1VDC offset (to keep the input signal within GND and VREF) that sampled
+//  sine wave can be clearly be seen with an oscilloscope at the output of DAC0.
 //
-// A switch on PC6 (active low) is configured to cause an interrupt and
-// set a global semaphore flag for use by a polled function.  
+//  A switch on PC7 (active low) is configured to cause an interrupt and
+//  set a global semaphore flag for use by a polled function.  
 //
-// Every 5 seconds a Hello World message is printed to the console.
+//  Every 5 seconds a Hello World message is printed to the console.
 //
-// Every 500 ms an LED (active high) on PC7 is toggled.
+//  Every 500 ms an LED (active high) on PC6 is toggled.
 //
-// Every 100 ms a polled function checks the status of the switch interrupt
-// semaphore and prints a message to the console when found set.
+//  Every 100 ms a polled function checks the status of the switch interrupt
+//  semaphore and prints a message to the console when found set.
 //
-// Every 750 ms the status of the PC7 switch is checked and if found active
-// (closed) a message is printed to the console.
+//  Every 750 ms the status of the PC7 switch is checked and if found active
+//  (closed) a message is printed to the console.
 //
-// Every 623 ms the last conversion value of the ADC is printed to the console.
-//
+//  Every 623 ms the last conversion value of the ADC is printed to the console.
 //
 ///////////////////////////////////////////////////
 
@@ -69,6 +68,10 @@
 
 #define USART4_BAUDRATE 57600
 
+#define PROGRAM_FUSES 0  // set to 1 if this program is to program fuses
+#define SET_LOCKBITS 0  // set to 1 if this program is to set lockbits
+ 
+
 
 
 //=======================================================================
@@ -80,22 +83,26 @@ int USART4_printChar(char c, FILE *stream);
 FILE USART_stream = FDEV_SETUP_STREAM(USART4_printChar, NULL, _FDEV_SETUP_WRITE);
 
 // fuse settings
-FUSES = {
-	.WDTCFG   = 0x00, // WDTCFG {PERIOD=OFF, WINDOW=OFF}
-	.BODCFG   = 0x10, // BODCFG {SLEEP=DISABLE, ACTIVE=DISABLE, SAMPFREQ=32Hz, LVL=BODLEVEL0}
-	.OSCCFG   = 0x78, // OSCCFG {CLKSEL=OSCHF}
-	.SYSCFG0  = 0xF6, // SYSCFG0 {EESAVE=CLEAR, CRCSEL=CRC32, CRCSRC=NOCRC}
-	.SYSCFG1  = 0xE8, // SYSCFG1 {SUT=0MS, MVSYSCFG=DUAL}
-	.CODESIZE = 0x00, // CODESIZE {CODESIZE=User range:  0x0 - 0xFF}
-	.BOOTSIZE = 0x00, // BOOTSIZE {BOOTSIZE=User range:  0x0 - 0xFF}
-};
-
+#if defined(PROGRAM_FUSES ) && PROGRAM_FUSES
+    FUSES = {
+      .WDTCFG   = 0x00, // WDTCFG {PERIOD=OFF, WINDOW=OFF}
+      .BODCFG   = 0x10, // BODCFG {SLEEP=DISABLE, ACTIVE=DISABLE, SAMPFREQ=32Hz, LVL=BODLEVEL0}
+      .OSCCFG   = 0x78, // OSCCFG {CLKSEL=OSCHF}
+      .SYSCFG0  = 0xF6, // SYSCFG0 {EESAVE=CLEAR, CRCSEL=CRC32, CRCSRC=NOCRC}
+      .SYSCFG1  = 0xE8, // SYSCFG1 {SUT=0MS, MVSYSCFG=DUAL}
+      .CODESIZE = 0x00, // CODESIZE {CODESIZE=User range:  0x0 - 0xFF}
+      .BOOTSIZE = 0x00, // BOOTSIZE {BOOTSIZE=User range:  0x0 - 0xFF}
+    };
+#endif
+    
 // lock bits
-#define LOCKBITS32 uint32_t __lock LOCKMEM
-LOCKBITS32 = 0x5CC5C55C; // KEY {KEY=NOLOCK}
-
+#if defined(SET_LOCKBITS ) && SET_LOCKBITS
+    #define LOCKBITS32 uint32_t __lock LOCKMEM
+    LOCKBITS32 = 0x5CC5C55C; // KEY {KEY=NOLOCK}
+#endif
+    
 //=======================================================================
-// unlike Arduino, in this program the minor functions will be position first,
+// In this program the tertiary functions will be position first,
 // then the secondary functions, and then main() at the bottom
 //=======================================================================
 
@@ -415,11 +422,13 @@ ISR(ADC0_RESRDY_vect) {
 
 
 //=======================================================================
-// now establish a mechanism that provides capabilities like Arduino millis()
+// Establish a mechanism that provides capabilities like Arduino millis(),
 // however in this case we will call it millisx() - note the x in function name.
 // timer TCB0 will be used for this function
 
 volatile uint32_t __millisecCtr = 0;
+volatile uint32_t __microSecAcc = 0;
+
 
 // interrupt routine for TCB0.  just count milliseconds in a global
 // 32 bit variable.  
@@ -431,10 +440,13 @@ ISR(TCB0_INT_vect) {
 // return number of milliseconds since power-on
 uint32_t millisx(void) {
   uint32_t val;
-  uint8_t tmpSREG;
-	tmpSREG = SREG;  // save int status reg in tmpSREG
+  //  uint8_t tmpSREG;
+  //	tmpSREG = SREG;  // save int status reg in tmpSREG
+  //    val = __millisecCtr;
+  //  SREG = tmpSREG; // restore int status to that found on function entry
+  do {
     val = __millisecCtr;
-  SREG = tmpSREG; // restore int status to that found on function entry
+  } while (val != __millisecCtr);
   return val;
 }
 
@@ -563,8 +575,11 @@ int main(int argc, char** argv) {
     static uint32_t timeRef0 = 0;  // declare static variable for this timer
     if (millisx() - timeRef0 > 500) {
       // timeout occurred!
-      timeRef0 = millisx(); // re-init the timeRef0      
-      led0Toggle(); // toggle the LED
+      timeRef0 = millisx(); // re-init the timeRef0
+      if ((PORTC.IN & PIN7_bm)) {
+        // if switch is open (high) then toggle LED)
+        led0Toggle(); // toggle the LED
+      }
     }    
     
     // Every 5 seconds print hello world message to console
@@ -573,7 +588,7 @@ int main(int argc, char** argv) {
       // timeout occurred!
       // it's been 5 seconds since last time
       static uint16_t lapCtr = 0;
-      timeRef1 = millisx(); // re-init the timeRef1
+      timeRef1 = millisx(); // re-init the timeRef0
       lapCtr++;  // increment the lap counter
       printf("Hello World, %u\n", lapCtr); // print message to console
     }
@@ -583,7 +598,7 @@ int main(int argc, char** argv) {
     static uint32_t timeRef2 = 0;  // declare static variable for this timer    
     if (millisx() - timeRef2 > 100) {
       // timeout occurred!
-      timeRef2 = millisx(); // re-init the timeRef2
+      timeRef2 = millisx(); // re-init the timeRef1
       // check for semaphore from TCB0 interrupt that occurs every millisecond.
       // because switches have mechanical bounce, there will probably be several
       // interrupts over the course of 10 ms for every switch closure.  However,
@@ -600,7 +615,7 @@ int main(int argc, char** argv) {
     static uint32_t timeRef3 = 0;  // declare static variable for this timer
     if (millisx() - timeRef3 > 750) {
       // timeout occurred!
-      timeRef3 = millisx(); // re-init the timeRef3    
+      timeRef3 = millisx(); // re-init the timeRef2    
       // check the status of the switch at PC7 (ignoring the interrupt routine) and
       // place the switch status in the variable as either 1 or 0.  "PORTC.IN & PIN7_bm"
       // results in either a zero or some non-zero value.  applying the ! (not) operator
@@ -618,7 +633,7 @@ int main(int argc, char** argv) {
     static uint32_t timeRef4 = 0;  // declare static variable for this timer
     if (millisx() - timeRef4 > 623) {
       // timeout occurred!
-      timeRef4 = millisx(); // re-init the timeRef4   
+      timeRef4 = millisx(); // re-init the timeRef3   
       printf("ADC= %4d\n", ADC0.RES);
     }
   }
