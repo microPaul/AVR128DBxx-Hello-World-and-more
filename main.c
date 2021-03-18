@@ -41,7 +41,9 @@
 //
 //  Every 5 seconds a Hello World message is printed to the console.
 //
-//  Every 500 ms an LED (active high) on PC6 is toggled.
+//  Every 500 ms an LED (active high) on PC6 is toggled.  Pressing and holding
+//  the PC7 push button will cause the LED to remain in its current state
+//  while the button is in the down position.
 //
 //  Every 100 ms a polled function checks the status of the switch interrupt
 //  semaphore and prints a message to the console when found set.
